@@ -1,0 +1,125 @@
+<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AHB Panel</title>
+<style>
+:root{--bg:#040919;--c:#0a1330;--c2:#0d1a40;--b:#1f3f9a66;--m:#8fa3d6;--g:linear-gradient(90deg,#1d6bff,#6a4dff);--ok:#00e5a0;--bad:#ff4d6d}
+*{box-sizing:border-box;font-family:Tahoma,sans-serif}
+body{margin:0;background:radial-gradient(circle at 60% 0,#171066,var(--bg) 55%) fixed;color:#e8eeff;min-height:100vh}
+#app{display:grid;direction:ltr;grid-template-columns:232px minmax(0,1fr) 310px;min-height:100vh}
+#app>*{direction:rtl}#app.n2{grid-template-columns:232px minmax(0,1fr)}#app.n2 aside{display:none}
+nav{background:#060d26;border-right:1px solid var(--b);padding:12px;position:sticky;top:0;height:100vh;overflow:auto}
+.logo{font:900 34px sans-serif;background:var(--g);-webkit-background-clip:text;color:transparent;text-align:center;margin:4px 0 2px;direction:ltr}.ver{text-align:center;color:var(--m);font-size:12px;margin-bottom:12px}
+nav a{display:block;padding:11px 14px;border-radius:11px;margin:3px 0;color:var(--m);cursor:pointer;white-space:nowrap;font-size:14px}
+nav a.on{background:var(--g);color:#fff;box-shadow:0 0 18px #4d5dff66}
+main,aside{padding:14px;min-width:0}aside{padding-right:0}
+.card{background:linear-gradient(160deg,#0b1538,#08102c);border:1px solid var(--b);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 0 24px #1d4dff1c inset}
+.card h3{margin:0 0 12px;font-size:15px}
+.hero{background:linear-gradient(120deg,#0b3bb8,#2a1a8a 60%,#4a1a9a);border-color:#4d7dff;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 30px #2d5dff55}
+.hero h2{margin:0 0 6px}.st{background:#08163e;border:1px solid var(--b);border-radius:12px;padding:10px 16px;text-align:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
+.cards .card{display:flex;gap:12px;align-items:center;margin:0}.ico{width:46px;height:46px;border-radius:50%;background:#16286a;display:grid;place-items:center;font-size:20px;flex:none}
+.cards b{display:block;font-size:24px}.cards small{color:var(--m)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.w{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:9px;text-align:right;border-bottom:1px solid var(--b);font-size:13px;white-space:nowrap}th{color:var(--m)}
+.pl{padding:3px 12px;border-radius:14px;font-size:12px}.pl.a{background:#0a3a2a;color:var(--ok)}.pl.x{background:#4a1020;color:var(--bad)}
+button,.btn{background:var(--g);color:#fff;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;margin:2px;text-decoration:none;display:inline-block;font-size:13px}
+button.s{background:#16224d}button.d{background:#7a1630}button.ic{background:#14245a;padding:5px 8px}
+input,select{width:100%;padding:10px;margin:4px 0 10px;background:#060c24;border:1px solid var(--b);border-radius:10px;color:#fff}
+.sr{margin:0 0 10px}label{font-size:12px;color:var(--m)}label.k{display:block;color:#fff;font-size:14px}label.k input{width:auto;margin:0 0 0 6px}
+.on{color:var(--ok)}.off{color:var(--bad)}
+.qo{display:block;width:100%;text-align:right;background:#0a1a4a;border:1px solid var(--b);margin:6px 0;padding:11px}
+.rw{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--b);font-size:13px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.pill{background:#0a2a1f;color:var(--ok);border:1px solid #00e5a055;border-radius:20px;padding:6px 14px;font-size:13px}.ad{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:8px 14px;font-size:13px}
+.ring{width:140px;height:140px;border-radius:50%;margin:auto;display:grid;place-items:center;background:conic-gradient(var(--ok) var(--p),#1b2550 0)}
+.ring i{width:108px;height:108px;border-radius:50%;background:var(--c);display:grid;place-items:center;font-style:normal;font-size:26px}
+#m{position:fixed;inset:0;background:#000a;display:none;place-items:center;padding:12px;z-index:9}#m.o{display:grid}#m .card{width:100%;max-width:440px;max-height:90vh;overflow:auto}
+#auth{max-width:380px;margin:12vh auto;padding:12px}
+@media(max-width:1100px){#app,#app.n2{grid-template-columns:1fr}nav{position:static;height:auto;display:flex;overflow-x:auto;gap:6px}.logo,.ver{display:none}#app.n2 aside{display:none}aside{padding:0 14px 14px}}
+</style>
+<div id="auth" style="display:none"></div>
+<div id="app" style="display:none"><nav></nav><main></main><aside></aside></div>
+<div id="m"></div>
+<script>
+const $=s=>document.querySelector(s);let st={},pg='dash',q='';
+const api=(m,u,b)=>fetch('/api/'+u,{method:m,headers:{'content-type':'application/json'},body:b&&JSON.stringify(b)}).then(r=>r.ok?r.json():Promise.reject(r.status));
+const gb=b=>((b||0)/2**30).toFixed(1)+' GB',cp=t=>navigator.clipboard.writeText(t).then(()=>alert('کپی شد'));
+const IC={dash:'🏠',clients:'📋',groups:'👥',inbounds:'🔌',nodes:'🖧',traffic:'📊',mtproto:'✈️',bot:'🤖',logs:'📜',backup:'📦',settings:'⚙️',security:'🛡️'};
+const nav={dash:'داشبورد',clients:'کانفیگ‌ها و کاربران',groups:'گروه‌ها',inbounds:'پروتکل‌ها (اینباند)',nodes:'نودها',traffic:'ترافیک و آمار',mtproto:'پروکسی تلگرام',bot:'ربات تلگرام',logs:'لاگ‌ها',backup:'پکاپ و بازیابی',settings:'تنظیمات',security:'امنیت'};
+const nodeOpts=()=>[['local','سرور اصلی'],...st.nodes.map(n=>[n.id,n.name])];
+const FD={
+ inbounds:()=>[['remark','نام'],['protocol','پروتکل',['vless','vmess','trojan','shadowsocks','socks','http','dokodemo-door','wireguard','hysteria2']],['port','پورت','number'],['net','ترنسپورت',['tcp','ws','grpc','httpupgrade','xhttp']],['sec','امنیت',['none','tls','reality']],['sni','SNI / دامنه'],['path','Path / serviceName'],['flow','Flow (vless)',[['','—'],'xtls-rprx-vision']],['node','نود',nodeOpts()],['target','مقصد dokodemo'],['tport','پورت مقصد'],['cert','مسیر cert (TLS / Hysteria2)'],['key','مسیر key']],
+ clients:()=>[['email','نام کاربر'],['group','گروه',[['','—'],...st.groups.map(g=>[g.id,g.name])]],['limit','حجم (GB، 0=نامحدود)','number'],['days','مدت (روز، خالی=بدون تغییر)','number'],['inb','اینباندها','multi']],
+ groups:()=>[['name','نام گروه / طرح'],['limit','حجم پیش‌فرض (GB)','number'],['days','مدت پیش‌فرض (روز)','number'],['inb','اینباندها','multi']],
+ nodes:()=>[['name','نام'],['flag','پرچم (ایموجی)'],['address','آدرس نود (IP/دامنه)'],['port','پورت Agent (پیش‌فرض 62050)','number'],['key','کلید (NODE_KEY)']],
+ mtproto:()=>[['name','نام'],['port','پورت','number'],['domain','دامنه Fake-TLS (مثلاً www.google.com)']],
+ bot:()=>[['token','توکن ربات (خالی = بدون تغییر)'],['chat','Chat ID ادمین']],
+ settings:()=>[['panelPort','پورت پنل','number'],['subPort','پورت ساب','number'],['domain','دامنه'],['cert','مسیر فایل cert'],['key','مسیر فایل key'],['support','لینک پشتیبانی (t.me/...)'],['newpass','رمز جدید (اختیاری)']]
+};
+function edit(k,id){const o=k=='settings'?st.settings:k=='bot'?(st.settings.tg||{}):(st[k].find(x=>x.id==id)||{});
+ $('#m').innerHTML=`<div class="card"><h3>${o.id?'ویرایش':'افزودن / تنظیم'}</h3>${FD[k]().map(([n,l,t])=>{
+  if(t=='multi')return`<label>${l}</label>`+st.inbounds.map(i=>`<label class="k"><input type="checkbox" name="${n}" value="${i.id}" ${(o[n]||[]).includes(i.id)?'checked':''}>${i.remark} (${i.protocol}:${i.port})</label>`).join('')+'<br>';
+  if(Array.isArray(t))return`<label>${l}</label><select name="${n}">${t.map(x=>Array.isArray(x)?x:[x,x]).map(([v,t])=>`<option value="${v}" ${o[n]==v?'selected':''}>${t}</option>`).join('')}</select>`;
+  return`<label>${l}</label><input name="${n}" type="${t||'text'}" value="${n=='newpass'||n=='token'?'':o[n]??''}">`}).join('')}
+  <button onclick="save('${k}','${o.id||''}')">ذخیره</button><button class="s" onclick="$('#m').className=''">بستن</button></div>`;$('#m').className='o'}
+async function save(k,id){const b={};$('#m').querySelectorAll('[name]').forEach(e=>{if(e.type=='checkbox'){if(e.checked)(b[e.name]=b[e.name]||[]).push(e.value)}else b[e.name]=e.value});
+ if(id)b.id=id;await api('POST',k,b).catch(()=>0);$('#m').className='';if(k=='settings')alert('اگر پورت را عوض کردی، آدرس جدید را باز کن.');load()}
+const del=async(k,id)=>{if(confirm('حذف شود؟')){await api('DELETE',k+'/'+id);load()}};
+const tgl=async(k,id)=>{await api('POST',k+'/'+id+'/toggle');load()};
+const subUrl=c=>`${location.protocol}//${st.host}:${st.settings.subPort}/sub/${c.token}`,userUrl=c=>`${location.protocol}//${st.host}:${st.settings.subPort}/u/${c.token}`;
+const acts=(k,o)=>`<button class="ic" onclick="edit('${k}','${o.id}')">✏️</button><button class="ic" onclick="tgl('${k}','${o.id}')">⏻</button><button class="ic" onclick="del('${k}','${o.id}')">🗑</button>`;
+const tbl=(h,rows)=>`<div class="w"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
+const tg=on=>`<span class="pl ${on!==false?'a':'x'}">${on!==false?'فعال':'غیرفعال'}</span>`;
+const bar=(n,p,t)=>`<div style="margin:9px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${n}</span><span>${t||p+'%'}</span></div><div style="height:8px;background:#1b2550;border-radius:6px"><div style="height:8px;width:${p}%;border-radius:6px;background:${p>85?'#ff4d6d':'linear-gradient(90deg,#1d6bff,#6a4dff)'}"></div></div></div>`;
+const upt=s=>Math.floor(s/86400)+' روز '+Math.floor(s%86400/3600)+' ساعت';
+const chart=n=>{const h=(st.hist||[]).slice(-n);if(h.length<2)return'<p style="color:var(--m)">هنوز داده‌ای ثبت نشده</p>';const mx=Math.max(...h.map(x=>x.b),1),p=h.map((x,i)=>`${i*300/(h.length-1)},${100-x.b/mx*88}`).join(' ');
+ return`<svg viewBox="0 0 300 100" style="width:100%;height:170px" preserveAspectRatio="none"><defs><linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b6bff" stop-opacity=".55"/><stop offset="1" stop-color="#3b6bff" stop-opacity="0"/></linearGradient></defs><polygon points="0,100 ${p} 300,100" fill="url(#gr)"/><polyline points="${p}" fill="none" stroke="#5b8cff" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg><div style="color:var(--m);font-size:12px">اوج مصرف: ${gb(mx)} در ساعت</div>`};
+const rows=n=>st.clients.filter(c=>!q||c.email.toLowerCase().includes(q.toLowerCase())).slice(0,n||999).map((c,i)=>{const ib=st.inbounds.find(x=>(c.inb||[]).includes(x.id)),ex=c.exp&&c.exp<Date.now();
+ return`<tr><td>${i+1}</td><td>${c.email}</td><td>${ib?ib.protocol.toUpperCase():'—'}</td><td>${c.exp?new Date(c.exp).toLocaleDateString('fa-IR'):'∞'}</td><td>${gb(c.used)}</td><td>${c.limit>0?c.limit+' GB':'∞'}</td><td><span class="pl ${c.on===false?'x':'a'}">${c.on===false?(ex?'منقضی':'غیرفعال'):'فعال'}</span></td><td><button class="ic" onclick="edit('clients','${c.id}')">✏️</button><button class="ic" onclick="del('clients','${c.id}')">🗑</button><button class="ic" onclick="cp('${userUrl(c)}')">📋</button><button class="ic" onclick="tgl('clients','${c.id}')">⏻</button></td></tr>`}).join('');
+const ctab=n=>`<input class="sr" placeholder="🔍 جستجوی کانفیگ‌ها..." value="${q}" oninput="q=this.value;$('#cb').innerHTML=rows(${n||0})"><div class="w"><table><tr><th>#</th><th>نام کانفیگ</th><th>پروتکل</th><th>تاریخ انقضا</th><th>مصرف</th><th>حجم مجاز</th><th>وضعیت</th><th>عملیات</th></tr><tbody id="cb">${rows(n)}</tbody></table></div>`;
+const qo=k=>k[0]=='+'?edit(k.slice(1)):(pg=k,draw());
+const P={
+ dash:()=>{const S=st.sys||{},ql=st.clients.reduce((a,c)=>a+(+c.limit||0),0),u=st.clients.reduce((a,c)=>a+(c.used||0),0)/2**30,pc=ql?Math.min(100,u/ql*100).toFixed(0):0;
+ return`<div class="card hero"><div><h2>به پنل مدیریت AHB خوش آمدید</h2><span style="color:#b9c8ff">مدیریت آسان، سریع و حرفه‌ای</span></div><div class="st">وضعیت سرور<br><b class="${S.xray?'on':'off'}">${S.xray?'آنلاین':'آفلاین'}</b></div></div>
+ <div class="cards"><div class="card"><div class="ico">👤</div><div><small>کل کاربران</small><b>${st.clients.length}</b></div></div><div class="card"><div class="ico">👥</div><div><small>کانفیگ‌های فعال</small><b>${st.clients.filter(c=>c.on!==false).length}</b></div></div><div class="card"><div class="ico">☁️</div><div><small>کل ترافیک</small><b>${gb(st.clients.reduce((a,c)=>a+(c.used||0),0))}</b></div></div><div class="card"><div class="ico">🔌</div><div><small>اینباندها / نودها</small><b>${st.inbounds.length} / ${st.nodes.length}</b></div></div></div>
+ <div class="two"><div class="card"><h3>نمودار ترافیک مصرفی (۲۴ ساعت)</h3>${chart(24)}</div><div class="card"><h3>میزان مصرف کل</h3><div class="ring" style="--p:${pc}%"><i>${pc}%</i></div><p style="color:var(--m);font-size:13px;text-align:center">${u.toFixed(1)} از ${ql||'∞'} GB</p></div></div>
+ <div class="card"><h3>مدیریت کانفیگ‌ها</h3>${ctab(5)}</div>
+ <div class="cards">${[['settings','⚙️','تنظیمات کلی'],['groups','👥','مدیریت گروه‌ها'],['traffic','📊','گزارش ترافیک'],['logs','📜','لاگ کاربران']].map(([k,i,t])=>`<div class="card" style="cursor:pointer" onclick="qo('${k}')"><div class="ico">${i}</div><b style="font-size:15px">${t}</b></div>`).join('')}</div>`},
+ clients:()=>`<button onclick="edit('clients')">+ کانفیگ / کاربر جدید</button><div class="card" style="margin-top:10px">${ctab()}</div>`,
+ groups:()=>`<button onclick="edit('groups')">+ گروه جدید</button><div class="card" style="margin-top:10px">${tbl(['نام','حجم','مدت','اینباندها','اعضا',''],st.groups.map(g=>[g.name,g.limit||'∞',g.days||'∞',(g.inb||[]).length,st.clients.filter(c=>c.group==g.id).length,`<button class="ic" onclick="edit('groups','${g.id}')">✏️</button><button class="ic" onclick="del('groups','${g.id}')">🗑</button>`]))}</div>`,
+ inbounds:()=>`<button onclick="edit('inbounds')">+ اینباند جدید</button><div class="card" style="margin-top:10px">${tbl(['نام','پروتکل','پورت','ترنسپورت','امنیت','نود','وضعیت',''],st.inbounds.map(i=>[i.remark,i.protocol,i.port,i.net||'tcp',i.sec||'none',(nodeOpts().find(x=>x[0]==(i.node||'local'))||[])[1]||'—',tg(i.on),acts('inbounds',i)]))}</div>`,
+ nodes:()=>`<button onclick="edit('nodes')">+ نود جدید</button><div class="card" style="margin-top:10px"><p style="color:var(--m);font-size:13px">روی سرور نود همین پروژه را با <code>NODE_KEY=کلید</code> اجرا کنید و همان کلید را اینجا بزنید.</p>${tbl(['نام','آدرس','کلید','وضعیت',''],st.nodes.map(n=>[(n.flag||'🌐')+' '+n.name,n.address+':'+(n.port||62050),n.key,n.ok?'<span class=on>متصل</span>':'<span class=off>قطع</span>',acts('nodes',n)]))}</div>`,
+ traffic:()=>`<div class="card"><h3>ترافیک ۷ روز اخیر</h3>${chart(168)}</div><div class="card"><h3>بیشترین مصرف</h3>${tbl(['کاربر','مصرف','حجم مجاز'],[...st.clients].sort((a,b)=>(b.used||0)-(a.used||0)).slice(0,15).map(c=>[c.email,gb(c.used),c.limit>0?c.limit+' GB':'∞']))}</div>`,
+ mtproto:()=>`<button onclick="edit('mtproto')">+ پروکسی تلگرام</button><div class="card" style="margin-top:10px">${tbl(['نام','پورت','وضعیت','لینک',''],st.mtproto.map(m=>[m.name,m.port,tg(m.on),`<button class="ic" onclick="cp('https://t.me/proxy?server=${st.host}&port=${m.port}&secret=${m.secret}')">📋</button>`,acts('mtproto',m)]))}</div>`,
+ bot:()=>{const t=st.settings.tg;return`<div class="card"><h3>🤖 ربات تلگرام</h3><p>وضعیت: ${t&&t.on?'<span class=on>تنظیم شده</span>':'<span class=off>تنظیم نشده</span>'} ${t?'— Chat ID: '+t.chat:''}</p><p style="color:var(--m);font-size:13px">اعلان قطع شدن نود و اتمام حجم/زمان کاربران + دستورات <code>/status</code> و <code>/user نام</code>. سرور باید به api.telegram.org دسترسی داشته باشد.</p><button onclick="edit('bot')">تنظیم ربات</button><button class="s" onclick="api('POST','bot/test').then(()=>alert('پیام تست ارسال شد'))">ارسال پیام تست</button></div>`},
+ logs:()=>`<div class="card"><h3>📜 لاگ فعالیت‌ها</h3>${(st.log||[]).map(l=>`<div class="rw"><span>${l.m}</span><small style="color:var(--m)">${new Date(l.t).toLocaleString('fa-IR')}</small></div>`).join('')||'—'}</div>`,
+ backup:()=>`<div class="card"><h3>📦 پکاپ و بازیابی</h3><a class="btn" href="/api/backup">⬇ دانلود بکاپ دیتابیس</a><hr style="border-color:var(--b)"><label>بازیابی از فایل بکاپ (اطلاعات فعلی جایگزین می‌شود)</label><input type="file" id="rf" accept=".json"><button class="d" onclick="restore()">بازیابی</button></div>`,
+ settings:()=>{const s=st.ssl;return`<div class="card"><p>پورت پنل: ${st.settings.panelPort} — پورت ساب: ${st.settings.subPort} — دامنه: ${st.settings.domain||'—'}</p><button onclick="edit('settings')">ویرایش تنظیمات</button></div>
+ <div class="card"><h3>🔒 SSL دامنه</h3>${s?`<p>دامنه: ${s.domain} — اعتبار تا: ${s.validTo} — ${s.active?'<span class=on>روی پنل فعال</span>':'<span class=off>اعمال نشده</span>'}</p>`:''}
+ <label>دامنه (باید به IP این سرور اشاره کند و پورت 80 باز باشد)</label><input id="sd" value="${s?s.domain:''}" placeholder="panel.example.com"><label>ایمیل</label><input id="se" placeholder="you@example.com">
+ <button onclick="ssl('issue')">دریافت SSL</button><button class="s" onclick="ssl('apply')">اعمال روی پنل و رفتن به دامنه</button><button class="d" onclick="ssl('off')">غیرفعال‌سازی HTTPS</button>
+ <pre id="so" style="white-space:pre-wrap;direction:ltr;font-size:12px;color:var(--m)"></pre></div>`},
+ security:()=>`<div class="card"><h3>🛡️ امنیت</h3><p style="color:var(--m);font-size:13px">ورود بعد از ۵ رمز اشتباه به‌مدت ۱۰ دقیقه برای آن آی‌پی بسته می‌شود.</p><label>رمز جدید (حداقل ۶ کاراکتر)</label><input id="np" type="password"><button onclick="api('POST','settings',{newpass:$('#np').value}).then(()=>alert('رمز عوض شد'))">تغییر رمز</button><button class="d" onclick="api('POST','logoutall').then(()=>alert('همه دستگاه‌های دیگر خارج شدند'))">خروج همه دستگاه‌ها</button></div>`
+};
+const aside=()=>{const S=st.sys||{},ram=S.mem?Math.round((1-S.free/S.mem)*100):0,dk=(S.disk||{}).total||0,df=(S.disk||{}).free||0,dp=dk?Math.round((1-df/dk)*100):0;
+ const dot=(n,v)=>`<div class="rw"><span>${n}</span><span class="${v?'on':'off'}">● ${v?'فعال':'خاموش'}</span></div>`;
+ return`<div class="card"><h3>⚡ عملیات سریع</h3>${[['clients','📋 مدیریت کانفیگ‌ها'],['+clients','➕ ایجاد کانفیگ جدید'],['clients','👤 مدیریت کاربران'],['+clients','🔗 ساخت سابسکریپشن'],['bot','✈️ تنظیمات ربات تلگرام'],['backup','🗄 پکاپ‌گیری از دیتابیس']].map(([k,t])=>`<button class="qo" onclick="qo('${k}')">${t}</button>`).join('')}</div>
+ <div class="card"><h3>🖥 وضعیت سیستم</h3>${dot('Xray',S.xray)}${dot('ربات تلگرام',st.settings.tg&&st.settings.tg.on)}${dot('پروکسی تلگرام (MTProto)',S.mtg)}${dot('Hysteria2',S.hy)}
+ ${bar('CPU ('+(S.cores||'?')+' هسته)',S.cpu||0)}${bar('RAM',ram,gb(S.mem-S.free)+' / '+gb(S.mem))}${bar('دیسک',dp,gb(dk-df)+' / '+gb(dk))}
+ <small style="color:var(--m);display:block;margin-top:6px">${S.model||''}<br>Load: ${(S.load||[]).join(' / ')} — آپتایم: ${upt(S.up||0)}<br>${S.hostname||''} (${S.plat||''})</small></div>
+ <div class="card"><h3>🕒 آخرین فعالیت‌ها</h3>${(st.log||[]).slice(0,4).map(l=>`<div class="rw"><span>${l.m}</span><small style="color:var(--m)">${new Date(l.t).toLocaleTimeString('fa-IR')}</small></div>`).join('')||'—'}</div>`};
+async function ssl(a){if(a=='issue'){$('#so').textContent='در حال دریافت... (تا ۲ دقیقه)';const r=await api('POST','ssl/issue',{domain:$('#sd').value,email:$('#se').value}).catch(()=>({ok:0,out:'خطا'}));$('#so').textContent=(r.ok?'✅ دریافت شد؛ حالا «اعمال روی پنل» را بزن\n':'❌ ناموفق\n')+r.out;return}
+ const r=await api('POST','ssl/'+a);if(a=='apply'){if(r.ok){alert('پنل به این آدرس منتقل می‌شود: '+r.url);setTimeout(()=>location.href=r.url,2000)}else alert('اول SSL بگیر')}else{alert('HTTPS غیرفعال شد؛ با http باز کن');setTimeout(()=>location.protocol='http:',1500)}}
+async function restore(){const f=$('#rf').files[0];if(!f||!confirm('اطلاعات فعلی جایگزین می‌شود؟'))return;await fetch('/api/restore',{method:'POST',headers:{'content-type':'application/json'},body:await f.text()});alert('انجام شد');location.reload()}
+function draw(){$('#app').className=pg=='dash'?'':'n2';
+ $('nav').innerHTML='<div class="logo">AHB</div><div class="ver">PANEL v14.4.0</div>'+Object.entries(nav).map(([k,v])=>`<a class="${k==pg?'on':''}" onclick="pg='${k}';draw()">${IC[k]} ${v}</a>`).join('');
+ $('main').innerHTML=`<div class="top"><span class="pill">● سیستم فعال است</span><span style="color:var(--m);font-size:12px">${new Date().toLocaleString('fa-IR')}</span><span class="ad">🔔 &nbsp; 👤 admin ▾</span></div>`+P[pg]();
+ if(pg=='dash')$('aside').innerHTML=aside()}
+const load=()=>api('GET','state').then(s=>{st=s;draw()}).catch(boot);
+async function boot(){const a=await fetch('/api/auth').then(r=>r.json());
+ if(a.ok){$('#auth').style.display='none';$('#app').style.display='grid';return load()}
+ $('#app').style.display='none';$('#auth').style.display='block';
+ $('#auth').innerHTML=`<div class="card"><div class="logo">AHB PANEL</div><h3>${a.setup?'برای ورود به پنل ابتدا رمز تعیین کنید':'ورود به پنل'}</h3><label>رمز عبور</label><input id="p1" type="password" placeholder="حداقل ۶ کاراکتر">${a.setup?'<label>تکرار رمز</label><input id="p2" type="password" placeholder="تکرار رمز">':''}<button style="width:100%" onclick="go(${a.setup})">${a.setup?'تنظیم رمز و ورود':'ورود'}</button></div>`}
+async function go(setup){const p=$('#p1').value;if(setup&&p!=$('#p2').value)return alert('رمزها یکسان نیست');
+ await api('POST',setup?'setup':'login',{p}).then(boot).catch(()=>alert('رمز اشتباه یا نامعتبر'))}
+setInterval(()=>{if(pg=='dash'&&$('#app').style.display!='none'&&$('#m').className!='o'&&document.activeElement.tagName!='INPUT')load()},5000);
+boot();
+</script>
