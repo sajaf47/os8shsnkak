@@ -1,7 +1,0 @@
-services:
-  ahb:
-    build: .
-    network_mode: host      # برای باز بودن هر پورت دلخواه اینباند
-    restart: always
-    volumes: ["./data:/data"]
-    # برای نود: environment: [NODE_KEY=کلید_دلخواه, NODE_PORT=62050]
