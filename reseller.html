@@ -1,0 +1,63 @@
+<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>پنل نمایندگی</title>
+<style>
+:root{--bg:#040919;--c:#0a1330;--b:#1f3f9a66;--m:#8fa3d6;--g:linear-gradient(90deg,#1d6bff,#6a4dff);--ok:#00e5a0;--bad:#ff4d6d}
+*{box-sizing:border-box;font-family:Tahoma,sans-serif}
+body{margin:0;background:radial-gradient(circle at 60% 0,#171066,var(--bg) 55%) fixed;color:#e8eeff;min-height:100vh}
+.wrap{max-width:980px;margin:auto;padding:14px}
+.logo{font:900 30px sans-serif;background:var(--g);-webkit-background-clip:text;color:transparent;direction:ltr}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card{background:linear-gradient(160deg,#0b1538,#08102c);border:1px solid var(--b);border-radius:16px;padding:16px;margin-bottom:12px}
+.card h3{margin:0 0 12px;font-size:15px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}.cards .card{margin:0}
+.cards small{color:var(--m)}.cards b{display:block;font-size:22px;margin:4px 0}
+.w{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:9px;text-align:right;border-bottom:1px solid var(--b);font-size:13px;white-space:nowrap}th{color:var(--m)}
+.pl{padding:3px 12px;border-radius:14px;font-size:12px}.pl.a{background:#0a3a2a;color:var(--ok)}.pl.x{background:#4a1020;color:var(--bad)}
+button{background:var(--g);color:#fff;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;margin:2px;font-size:13px}
+button.s{background:#16224d}button.d{background:#7a1630}button.ic{background:#14245a;padding:5px 8px}
+input,select{width:100%;padding:10px;margin:4px 0 10px;background:#060c24;border:1px solid var(--b);border-radius:10px;color:#fff}
+label{font-size:12px;color:var(--m)}label.k{display:block;color:#fff;font-size:14px}label.k input{width:auto;margin:0 0 0 6px}
+.bar{height:8px;background:#1b2550;border-radius:6px;margin-top:6px}.bar i{display:block;height:8px;border-radius:6px;background:var(--g)}
+#m{position:fixed;inset:0;background:#000a;display:none;place-items:center;padding:12px;z-index:9}#m.o{display:grid}#m .card{width:100%;max-width:440px;max-height:90vh;overflow:auto}
+#auth{max-width:380px;margin:12vh auto;padding:12px}
+</style>
+<div id="auth" style="display:none"></div>
+<div id="app" class="wrap" style="display:none"></div>
+<div id="m"></div>
+<script>
+const $=s=>document.querySelector(s);let S={},fo={};
+const api=(m,u,b)=>fetch('/rapi/'+u,{method:m,headers:{'content-type':'application/json'},body:b&&JSON.stringify(b)}).then(async r=>{const j=await r.json().catch(()=>({}));return r.ok?j:Promise.reject(j.error||r.status)});
+const fb=b=>{b=+b||0;if(b<1024)return b+' B';const u=['KB','MB','GB','TB'];let i=-1;do{b/=1024;i++}while(b>=1024&&i<3);return(b>=100?b.toFixed(0):b>=10?b.toFixed(1):b.toFixed(2))+' '+u[i]};const fd=t=>{if(t<=0)return'0 دقیقه';const d=Math.floor(t/864e5),h=Math.floor(t%864e5/36e5),m=Math.floor(t%36e5/6e4);return d?d+' روز'+(h?' و '+h+' ساعت':''):h?h+' ساعت'+(m?' و '+m+' دقیقه':''):Math.max(1,m)+' دقیقه'};const fl=g=>{g=+g||0;return g?+g.toFixed(4)+' GB':'∞'};const gb=fb,e=x=>String(x??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const cp=t=>navigator.clipboard.writeText(t).then(()=>alert('کپی شد'));
+const dleft=t=>t?fd(t-Date.now()):null;
+const base=c=>`${S.proto}://${S.host}:${S.subPort}`,subU=c=>base()+'/sub/'+c.token,usrU=c=>base()+'/u/'+c.token;
+function draw(){const m=S.me,left=m.gb?Math.max(0,m.gb-m.alloc):null,pc=m.gb?Math.min(100,m.alloc/m.gb*100):0,dl=dleft(m.exp);
+ $('#app').innerHTML=`<div class="top"><span class="logo">AHB</span><span>👤 ${e(m.name)} <button class="s" onclick="out()">خروج</button></span></div>
+ <div class="cards"><div class="card"><small>سهمیه حجم</small><b>${m.gb?m.gb+' GB':'نامحدود'}</b><div class="bar"><i style="width:${pc}%"></i></div><small>تخصیص‌یافته: ${fl(m.alloc)}${left!==null?' — باقی‌مانده: '+fl(+left.toFixed(4)):''}</small></div>
+ <div class="card"><small>اعتبار پنل</small><b>${dl===null?'نامحدود':dl}</b><small>${m.exp?new Date(m.exp).toLocaleDateString('fa-IR'):''}</small></div>
+ <div class="card"><small>تعداد کاربران</small><b>${S.clients.length}${m.maxc?' / '+m.maxc:''}</b></div></div>
+ <div class="card"><button onclick="edit()">+ کاربر جدید</button><div class="w" style="margin-top:10px"><table><tr><th>#</th><th>نام</th><th>گروه</th><th>انقضا</th><th>مصرف</th><th>حجم</th><th>وضعیت</th><th>عملیات</th></tr>
+ ${S.clients.map((c,i)=>{const g=S.groups.find(x=>x.id==c.group);return`<tr><td>${i+1}</td><td>${e(c.email)}</td><td>${g?e(g.name):'—'}</td><td>${c.exp?new Date(c.exp).toLocaleDateString('fa-IR')+'<br><small>'+fd(c.exp-Date.now())+'</small>':'∞'}</td><td>${gb(c.used)}</td><td>${fl(c.limit)}</td><td><span class="pl ${c.on?'a':'x'}">${c.on?'فعال':'غیرفعال'}</span></td>
+ <td><button class="ic" onclick="edit('${c.id}')">✏️</button><button class="ic" onclick="tgl('${c.id}')">⏻</button><button class="ic" onclick="del('${c.id}')">🗑</button><button class="ic" title="لینک ساب" onclick="cp(subU(S.clients[${i}]))">🔗</button><button class="ic" title="صفحه کاربر" onclick="cp(usrU(S.clients[${i}]))">📋</button></td></tr>`}).join('')||'<tr><td colspan=8 style="color:var(--m)">هنوز کاربری ندارید</td></tr>'}</table></div></div>`}
+function edit(id){const c=S.clients.find(x=>x.id==id)||{};fo={...c};if(!c.id){fo.inb=[];fo.group=''}rf()}
+function rf(){const c=fo;$('#m').innerHTML=`<div class="card"><h3>${c.id?'ویرایش کاربر':'کاربر جدید'}</h3>
+ <label>نام کاربر (انگلیسی)</label><input id="f_email" value="${e(c.email)}" ${c.id?'readonly':''}>
+ <label>گروه / طرح</label><select id="f_group" onchange="gch()"><option value="">— بدون گروه —</option>${S.groups.map(g=>`<option value="${g.id}" ${c.group==g.id?'selected':''}>${e(g.name)}${g.limit?' ('+g.limit+'GB':''}${g.days?' / '+g.days+' روز':''}${g.limit?')':''}</option>`).join('')}</select>
+ <label>حجم (GB) — اعشار مجاز، مثلاً 0.5</label><input id="f_limit" type="number" step="any" min="0" value="${c.limit||''}">
+ <label>مدت (روز، اعشار مجاز) ${c.id?'— خالی = بدون تغییر، عدد = از الان تمدید':''}</label><input id="f_days" type="number" step="any" min="0" value="">
+ <label>اینباندها</label>${S.inbounds.map(i=>`<label class="k"><input type="checkbox" name="inb" value="${i.id}" ${(c.inb||[]).includes(i.id)?'checked':''}>${e(i.remark)} (${i.protocol}:${i.port})</label>`).join('')}<br>
+ <button onclick="sv()">ذخیره</button><button class="s" onclick="$('#m').className=''">بستن</button></div>`;$('#m').className='o'}
+function gch(){const g=S.groups.find(x=>x.id==$('#f_group').value);if(!g)return;if(g.limit)$('#f_limit').value=g.limit;if(g.days)$('#f_days').value=g.days;
+ document.querySelectorAll('[name=inb]').forEach(x=>x.checked=(g.inb||[]).includes(x.value))}
+async function sv(){const b={id:fo.id,email:$('#f_email').value,group:$('#f_group').value,limit:$('#f_limit').value,days:$('#f_days').value,inb:[...document.querySelectorAll('[name=inb]:checked')].map(x=>x.value)};
+ try{await api('POST','clients',b);$('#m').className='';load()}catch(x){alert(x)}}
+const tgl=async id=>{try{await api('POST','clients/'+id+'/toggle');load()}catch(x){alert(x)}};
+const del=async id=>{if(confirm('حذف شود؟ (مصرف تاکنونی این کاربر از سهمیه شما کسر می‌ماند)')){await api('DELETE','clients/'+id);load()}};
+const out=async()=>{await api('POST','logout');boot()};
+const load=()=>api('GET','state').then(s=>{S=s;draw()}).catch(boot);
+async function boot(){try{S=await api('GET','state');$('#auth').style.display='none';$('#app').style.display='block';draw()}catch{
+ $('#app').style.display='none';$('#auth').style.display='block';
+ $('#auth').innerHTML=`<div class="card"><div class="logo" style="text-align:center">AHB</div><h3>ورود به پنل نمایندگی</h3><label>نام کاربری</label><input id="u"><label>رمز عبور</label><input id="p" type="password"><button style="width:100%" onclick="go()">ورود</button></div>`}}
+async function go(){await api('POST','login',{u:$('#u').value,p:$('#p').value}).then(boot).catch(()=>alert('نام کاربری یا رمز اشتباه است'))}
+setInterval(()=>{if($('#app').style.display!='none'&&$('#m').className!='o')load()},15000);
+boot();
+</script>
